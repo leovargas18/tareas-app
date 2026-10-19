@@ -12,6 +12,7 @@ tareas-app/
 ├── css/styles.css      Estilos originales
 ├── js/app.js           Logica original
 ├── img/banner.png      Imagen original
+├── server/tuapp.conf   Configuracion del Virtual Host de Apache
 ├── dist/               Version optimizada (la que se despliega)
 │   ├── index.html
 │   ├── css/styles.min.css
@@ -51,7 +52,20 @@ El segundo comando verifica el contenido del paquete.
   2. Version optimizada en `dist`.
   3. Paquete comprimido `tareas-app.zip`.
   4. Documentacion en el README.
+  5. Configuracion del servidor Apache.
 - Se conecto el repositorio remoto y se subio con `git push -u origin main`.
+
+### 4. Configuracion del servidor (Apache con XAMPP)
+
+- Se instalo XAMPP (solo el modulo Apache) en `C:\xampp` y se inicio desde el panel de control, escuchando en el puerto 80.
+- Se copio el contenido de `dist/` a la carpeta del servidor:
+  `xcopy dist C:\xampp\sites\tuapp /E /I /Y`
+- Se configuro un Virtual Host en `C:\xampp\apache\conf\extra\httpd-vhosts.conf` (copia en `server/tuapp.conf`):
+  - Puerto: `80`.
+  - Mapeo de directorio: el alias `/tuapp` apunta a `C:/xampp/sites/tuapp`.
+  - Se desactivo el listado de directorios (`-Indexes`) y se permitio el acceso a esa carpeta (`Require all granted`).
+- Se valido la sintaxis con `C:\xampp\apache\bin\httpd.exe -t` (resultado: `Syntax OK`) y se reinicio Apache.
+- La aplicacion queda accesible en: http://localhost/tuapp
 
 ## Uso local
 
