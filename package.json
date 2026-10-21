@@ -1,0 +1,27 @@
+{
+  "name": "tareas-app",
+  "version": "1.0.0",
+  "description": "Aplicacion web sencilla para agregar, completar, filtrar y borrar tareas. Las tareas se guardan en el navegador (localStorage). Proyecto del reto de empaquetado, versionamiento y despliegue de una aplicacion web (UVEG).",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leovargas18/tareas-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/leovargas18/tareas-app/issues"
+  },
+  "homepage": "https://github.com/leovargas18/tareas-app#readme",
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "express-validator": "^7.3.2",
+    "mysql2": "^3.24.6"
+  }
+}

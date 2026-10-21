@@ -1,0 +1,30 @@
+.legal {
+  max-width: 760px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  line-height: 1.6;
+  font-family: system-ui, sans-serif;
+  color: #222;
+}
+.legal h1 {
+  font-size: 1.8rem;
+}
+.legal h2 {
+  font-size: 1.2rem;
+  margin-top: 1.6rem;
+}
+.legal a {
+  color: #0b5cad;
+}
+.pie {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  border-top: 1px solid #ddd;
+  color: #444;
+}
+.pie a {
+  color: #0b5cad;
+  margin: 0 0.4rem;
+}

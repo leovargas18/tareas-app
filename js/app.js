@@ -1,5 +1,5 @@
-// Lista de tareas: se guarda en localStorage del navegador
-const CLAVE = "pendientes-tareas";
+// Lista de tareas: se guarda en MySQL a través de la API (Express)
+const API = "/api/tareas";
 const form = document.getElementById("form");
 const texto = document.getElementById("texto");
 const lista = document.getElementById("lista");
@@ -7,22 +7,34 @@ const vacio = document.getElementById("vacio");
 const resumen = document.getElementById("resumen");
 const botonesFiltro = document.querySelectorAll("[data-filtro]");
 
-let tareas = cargar();
+let tareas = [];
 let filtro = "todas";
 
-function cargar() {
-  try {
-    return JSON.parse(localStorage.getItem(CLAVE)) || [];
-  } catch (e) {
-    return [];
-  }
+async function pedir(url, opciones) {
+  const r = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...opciones,
+  });
+  if (!r.ok) throw new Error("Error " + r.status);
+  return r.json();
 }
 
-function guardar() {
+function fallo() {
+  pintar();
+  resumen.textContent = "No se pudo conectar con el servidor";
+}
+
+async function cargar() {
   try {
-    localStorage.setItem(CLAVE, JSON.stringify(tareas));
+    const datos = await pedir(API);
+    tareas = datos.map((d) => ({
+      id: d.id,
+      texto: d.titulo,
+      hecha: !!d.completada,
+    }));
+    pintar();
   } catch (e) {
-    /* si el navegador bloquea el almacenamiento, la app sigue funcionando */
+    fallo();
   }
 }
 
@@ -44,10 +56,17 @@ function pintar() {
     check.type = "checkbox";
     check.checked = t.hecha;
     check.setAttribute("aria-label", "Marcar como hecha: " + t.texto);
-    check.addEventListener("change", () => {
-      t.hecha = check.checked;
-      guardar();
-      pintar();
+    check.addEventListener("change", async () => {
+      try {
+        await pedir(API + "/" + t.id, {
+          method: "PUT",
+          body: JSON.stringify({ completada: check.checked }),
+        });
+        t.hecha = check.checked;
+        pintar();
+      } catch (e) {
+        fallo();
+      }
     });
 
     const span = document.createElement("span");
@@ -58,10 +77,14 @@ function pintar() {
     borrar.className = "borrar";
     borrar.textContent = "Borrar";
     borrar.setAttribute("aria-label", "Borrar tarea: " + t.texto);
-    borrar.addEventListener("click", () => {
-      tareas = tareas.filter((x) => x.id !== t.id);
-      guardar();
-      pintar();
+    borrar.addEventListener("click", async () => {
+      try {
+        await pedir(API + "/" + t.id, { method: "DELETE" });
+        tareas = tareas.filter((x) => x.id !== t.id);
+        pintar();
+      } catch (e) {
+        fallo();
+      }
     });
 
     li.append(check, span, borrar);
@@ -75,14 +98,21 @@ function pintar() {
     : "";
 }
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const valor = texto.value.trim();
   if (!valor) return;
-  tareas.push({ id: Date.now(), texto: valor, hecha: false });
-  texto.value = "";
-  guardar();
-  pintar();
+  try {
+    const nueva = await pedir(API, {
+      method: "POST",
+      body: JSON.stringify({ titulo: valor }),
+    });
+    tareas.push({ id: nueva.id, texto: nueva.titulo, hecha: false });
+    texto.value = "";
+    pintar();
+  } catch (e) {
+    fallo();
+  }
 });
 
 botonesFiltro.forEach((b) =>
@@ -90,13 +120,17 @@ botonesFiltro.forEach((b) =>
     filtro = b.dataset.filtro;
     botonesFiltro.forEach((x) => x.classList.toggle("activo", x === b));
     pintar();
-  })
+  }),
 );
 
-document.getElementById("limpiar").addEventListener("click", () => {
-  tareas = tareas.filter((t) => !t.hecha);
-  guardar();
-  pintar();
+document.getElementById("limpiar").addEventListener("click", async () => {
+  try {
+    await pedir(API + "/completadas", { method: "DELETE" });
+    tareas = tareas.filter((t) => !t.hecha);
+    pintar();
+  } catch (e) {
+    fallo();
+  }
 });
 
-pintar();
+cargar();
