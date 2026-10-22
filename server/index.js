@@ -19,6 +19,14 @@ app.get("/terminos", (req, res) =>
   res.sendFile(path.join(raiz, "legal", "terminos.html")),
 );
 
+app.get("/manifest.json", (req, res) =>
+  res.sendFile(path.join(raiz, "manifest.json")),
+);
+app.get("/sw.js", (req, res) => {
+  res.set("Cache-Control", "no-cache");
+  res.sendFile(path.join(raiz, "sw.js"));
+});
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
